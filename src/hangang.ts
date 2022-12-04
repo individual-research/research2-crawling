@@ -70,7 +70,7 @@ export const crawlComments = async (posts: Post[]) => {
       if (regex) {
         try {
           const curComments = await getComments('best', regex[1], { postTitle, postDate, postLink: `https://www.fmkorea.com${post.link}` });
-          fs.writeFileSync(`./comments/${regex[1]}.json`, JSON.stringify(curComments, null, 2));
+          fs.writeFileSync(`./comments/미분류/${regex[1]}.json`, JSON.stringify(curComments, null, 2));
           comments = comments.concat(curComments);
         } catch (e) {
           reportError(e, `${regex[1]}번 게시글의 댓글을 불러오던 중 오류가 발생했습니다. (${post.link})`);
