@@ -44,7 +44,7 @@ export const crawlBestLinks = async (keyword: string, target: 'title' | 'title_c
       if (link) links.push({ link, title, date, author });
     });
 
-    await sleep(1000);
+    await sleep(500);
   }
 
   return links;
@@ -82,7 +82,7 @@ export const crawlComments = async (posts: Post[]) => {
       reportError(e, `"${post.title}" 게시글의 크롤링 도중 오류가 발생했습니다. (${post.link})`);
     }
 
-    await sleep(1000);
+    await sleep(500);
   }
 
   return comments;

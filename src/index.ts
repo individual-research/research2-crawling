@@ -18,6 +18,6 @@ import type { Comment, Post } from './types/comments';
 
   const comments = await crawlComments(posts);
 
-  fs.writeFileSync('./comments/미분류/comments.json', JSON.stringify(comments));
+  fs.writeFileSync('./comments.json', JSON.stringify(comments));
   console.log('Comments Saved.');
 })();
