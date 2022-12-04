@@ -5,6 +5,7 @@
   "main": "./src/index.js",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register ./src/index.ts",
+    "temp": "ts-node -r tsconfig-paths/register ./src/_temp.ts",
     "lint": "eslint --ext .js,.ts .",
     "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
   },

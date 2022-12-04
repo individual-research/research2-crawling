@@ -2,6 +2,7 @@ import axios from 'axios';
 import cheerio from 'cheerio';
 import { getComments } from './getComments';
 import type { Comment, Post } from './types/comments';
+import fs from 'fs';
 import { reportError, sleep } from './utils';
 
 /** axios instance for m.dcinside.com */
@@ -43,14 +44,14 @@ export const crawlBestLinks = async (keyword: string, target: 'title' | 'title_c
       if (link) links.push({ link, title, date, author });
     });
 
-    await sleep(5000);
+    await sleep(1000);
   }
 
   return links;
 };
 
 export const crawlComments = async (posts: Post[]) => {
-  const comments: Comment[] = [];
+  let comments: Comment[] = [];
 
   for (const [idx, post] of Object.entries(posts)) {
     console.log(`${idx}/${posts.length}`);
@@ -69,7 +70,8 @@ export const crawlComments = async (posts: Post[]) => {
       if (regex) {
         try {
           const curComments = await getComments('best', regex[1], { postTitle, postDate, postLink: `https://www.fmkorea.com${post.link}` });
-          comments.concat(curComments);
+          fs.writeFileSync(`./comments/${regex[1]}.json`, JSON.stringify(curComments, null, 2));
+          comments = comments.concat(curComments);
         } catch (e) {
           reportError(e, `${regex[1]}번 게시글의 댓글을 불러오던 중 오류가 발생했습니다. (${post.link})`);
         }
@@ -80,7 +82,7 @@ export const crawlComments = async (posts: Post[]) => {
       reportError(e, `"${post.title}" 게시글의 크롤링 도중 오류가 발생했습니다. (${post.link})`);
     }
 
-    await sleep(5000);
+    await sleep(1000);
   }
 
   return comments;
