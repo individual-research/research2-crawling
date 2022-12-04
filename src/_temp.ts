@@ -17,7 +17,7 @@ import { Post } from './types/comments';
 })();
 
 // (() => {
-//   const keyword = '한강';
+//   const keyword = '실종';
 
 //   const files = fs.readdirSync('./comments/미분류');
 //   const posts: Post[] = JSON.parse(fs.readFileSync(`./output/${keyword}.json`).toString());
@@ -38,4 +38,15 @@ import { Post } from './types/comments';
 //   console.log(remained.length, '/', posts.length);
 
 //   fs.writeFileSync('./remained.json', JSON.stringify(remained));
+// })();
+
+// (() => {
+//   const f1 = JSON.parse(fs.readFileSync('./output/실종-1.json').toString());
+//   const f2 = JSON.parse(fs.readFileSync('./output/실종-2.json').toString());
+
+//   const f3 = f1.concat(f2);
+
+//   fs.writeFileSync('./output/실종.json', JSON.stringify(f3));
+
+//   console.log(f3.length);
 // })();

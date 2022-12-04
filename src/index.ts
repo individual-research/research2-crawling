@@ -14,7 +14,7 @@ import type { Comment, Post } from './types/comments';
 // })();
 
 (async () => {
-  const posts: Post[] = JSON.parse(fs.readFileSync('./output/한강.json').toString());
+  const posts: Post[] = JSON.parse(fs.readFileSync('./output/실종.json').toString());
 
   const comments = await crawlComments(posts);
 
