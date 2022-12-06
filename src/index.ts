@@ -1,6 +1,6 @@
 import fs from 'fs';
 // import { crawlBestLinks, crawlComments } from './dcinside';
-import { crawlBestLinks, crawlComments } from './hangang';
+import { crawlBestLinks, crawlComments } from './fmkorea/hangang';
 import type { Comment, Post } from './types/comments';
 
 // (async () => {

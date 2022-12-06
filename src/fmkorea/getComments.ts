@@ -1,8 +1,8 @@
 import https from 'https';
 import cheerio from 'cheerio';
-import { sleep } from './utils';
+import { sleep } from '../utils';
 import fs from 'fs';
-import type { Comment } from './types/comments';
+import type { Comment } from '../types/comments';
 
 interface CommentPaginator {
   tpl: string;

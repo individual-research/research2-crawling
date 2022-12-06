@@ -1,9 +1,9 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
 import { getComments } from './getComments';
-import type { Comment, Post } from './types/comments';
+import type { Comment, Post } from '../types/comments';
 import fs from 'fs';
-import { reportError, sleep } from './utils';
+import { reportError, sleep } from '../utils';
 
 /** axios instance for m.dcinside.com */
 const http = axios.create({

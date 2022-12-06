@@ -1,7 +1,7 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
-import type { Comment } from './types/comments';
-import { sleep } from './utils';
+import type { Comment } from '../types/comments';
+import { sleep } from '../utils';
 
 /** axios instance for m.dcinside.com */
 const http = axios.create({
