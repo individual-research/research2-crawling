@@ -20,3 +20,5 @@ export const reportError = (e: any, msg: string) => {
 
   fs.appendFileSync('./errors.txt', `[${new Date().toISOString()}] ${msg}\n`);
 };
+
+export { parseDate } from './parseDate';

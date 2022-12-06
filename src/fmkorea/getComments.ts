@@ -1,19 +1,13 @@
 import https from 'https';
 import cheerio from 'cheerio';
-import { sleep } from '../utils';
+import { parseDate, sleep } from '../utils';
 import fs from 'fs';
-import type { Comment } from '../types/comments';
+import type { Comment } from '../types';
 
 interface CommentPaginator {
   tpl: string;
   meta: {
-    total_count: number;
-    total_page: number;
-    cur_page: number;
-    page_count: number;
-    first_page: number;
     last_page: number;
-    point: number;
   };
 }
 
@@ -27,7 +21,7 @@ const options = {
   },
 };
 
-export function getCommentsPerPage(board: string, post: string, page: number) {
+function getCommentsPerPage(board: string, post: string, page: number) {
   return new Promise<CommentPaginator>((resolve, reject) => {
     const req = https.request(options, function (res) {
       let data = '';
@@ -39,8 +33,11 @@ export function getCommentsPerPage(board: string, post: string, page: number) {
       res.on('end', function () {
         try {
           const body = JSON.parse(data);
-          body.comment_page_navigation.cur_page = Number.parseInt(body.comment_page_navigation.cur_page);
-          body.meta = body.comment_page_navigation;
+          if (body.comment_page_navigation) {
+            body.meta = { last_page: body.comment_page_navigation.last_page };
+          } else {
+            body.meta = { last_page: 1 };
+          }
 
           resolve(body);
         } catch (e) {
@@ -79,7 +76,7 @@ export async function getComments(board: string, post: string, postMeta: { postD
       const contentEl = commentEl.find('.xe_content');
       contentEl.find('.findParent').remove();
       const content = contentEl.text().trim();
-      const date = commentEl.find('.date').text().trim();
+      const date = parseDate(commentEl.find('.date').text().trim()).toISOString();
 
       const comment: Comment = {
         author,

@@ -1,9 +1,11 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
-import type { Comment } from '../types/comments';
-import { sleep } from '../utils';
+import { getComments } from './getComments';
+import type { Comment, Post } from '../types';
+import fs from 'fs';
+import { sleep, parseDate, reportError } from '../utils';
 
-/** axios instance for m.dcinside.com */
+/** axios instance for fmkorea */
 const http = axios.create({
   baseURL: 'https://m.fmkorea.com',
   headers: {
@@ -12,91 +14,76 @@ const http = axios.create({
   },
 });
 
-// const bestBoard = 'best'; // 포텐 최신순
-const bestBoard = 'best2'; // 포텐 화제순
+function makeUrl(page: number | string, board = 'best') {
+  return `https://m.fmkorea.com/index.php?mid=${board}&page=${page}`;
+}
 
 export const crawlBestLinks = async (start: number, end: number) => {
-  const links: string[] = [];
+  const links: Post[] = [];
   for (let page = start; page <= end; page++) {
-    const { data } = await http.get(`/board/${bestBoard}?page=${page}`);
+    const { data } = await http.get(makeUrl(page));
     const $ = cheerio.load(data);
 
     console.log('curPage: ', page);
 
-    $('.li_best2_pop0 > a').each((i, e) => {
-      const link = $(e).attr('href');
-      if (link) links.push(link);
+    $('.li_best2_pop0').each((i, e) => {
+      const link = $(e).find('a.read_more').attr('href');
+      const title = $(e).find('a.read_more').text().trim();
+      const date = $(e).find('.regdate').text().trim();
+      let author = $(e).find('.author').text().trim();
+      // extract author
+      const res = /\/ (.*)/.exec(author);
+      if (res) {
+        author = res[1];
+      }
+
+      if (link)
+        links.push({
+          link,
+          title,
+          date: parseDate(date).format('YYYY-MM-DD HH-mm-ss'),
+          // date: parseDate(date).toISOString(),
+          author,
+        });
     });
 
-    await sleep(1000);
+    await sleep(500);
   }
 
   return links;
 };
 
-export const crawlComments = async (links: string[], maxCount: number) => {
-  const comments: Comment[] = [];
+export const crawlComments = async (posts: Post[], savePath: string) => {
+  let comments: Comment[] = [];
 
-  for (const link of links) {
-    if (comments.length >= maxCount) break;
+  for (const [idx, post] of Object.entries(posts)) {
+    console.log(`${idx}/${posts.length}`);
 
-    const { data } = await http.get(link);
-    const $ = cheerio.load(data);
+    try {
+      const { data } = await http.get(post.link);
+      const $ = cheerio.load(data);
 
-    const postTitle = $('.top_area .np_18px_span').text().trim();
-    // const postAuthor = $('.gallview-tit-box .ginfo2 li').eq(0).text().trim();
-    const postDate = $('.top_area .date').text().trim();
+      const postTitle = $('.top_area .np_18px_span').text().trim();
+      // const postAuthor = $('.gallview-tit-box .ginfo2 li').eq(0).text().trim();
+      const postDate = parseDate($('.top_area .date').text().trim()).toISOString();
 
-    console.log('title: ', postTitle);
+      console.log('title: ', postTitle);
 
-    // fetch comments ajax
-    const fetchAllComments = async (documentId: string) => {
-      let curPage = 1;
-      let maxPage = -1;
-
-      const comments: Comment[] = [];
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        const payload = `midforconfig=best2&document_srl=${documentId}&cpage=${curPage}&m=1&tpl_json_encode=1&module=board&act=dispBoardContentCommentList`;
-        console.log(payload);
-
-        const response = await axios({
-          method: 'post',
-          url: 'https://m.fmkorea.com/',
-          headers: {
-            'User-Agent':
-              'Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Mobile Safari/537.36',
-            'Content-Type': 'application/json',
-          },
-          data: payload,
-        });
-
-        console.log(response.status);
-        console.log(response.statusText);
-        console.log(response.data);
-        const $ = cheerio.load(data.tpl);
-        const curComments = [...$('.fdb_itm:not(.comment_best)')].map((idx, e) => ({
-          postTitle,
-          postLink: link,
-          postDate,
-          author: $(e).find('.meta > a').text().trim(),
-          date: '<NO_DATA>',
-          content: $(e).find('.xe_content').text().trim(),
-        }));
-        comments.concat(...curComments);
-
-        maxPage = data.comment_page_navigation.last_page;
-        if (curPage >= maxPage) break;
-        curPage++;
+      const regex = /\/(.+)\/([0-9]+)/.exec(post.link);
+      if (regex) {
+        try {
+          const curComments = await getComments(regex[1], regex[2], { postTitle, postDate, postLink: `https://www.fmkorea.com${post.link}` });
+          fs.writeFileSync(`${savePath}/${regex[2]}.json`, JSON.stringify(curComments, null, 2));
+          comments = comments.concat(curComments);
+        } catch (e) {
+          reportError(e, `${regex[2]}번 게시글의 댓글을 불러오던 중 오류가 발생했습니다. (${post.link})`);
+        }
       }
+    } catch (e) {
+      reportError(e, `"${post.title}" 게시글의 크롤링 도중 오류가 발생했습니다. (${post.link})`);
+    }
 
-      return comments;
-    };
-
-    const curComments = await fetchAllComments(link.split('/')[2]);
-    comments.concat(curComments);
-
-    await sleep(1000);
+    await sleep(500);
   }
 
   return comments;
