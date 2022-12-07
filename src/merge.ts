@@ -2,8 +2,10 @@ import fs from 'fs';
 import dayjs from 'dayjs';
 import { Comment, Post } from './types';
 
-(() => {
-  const path = './comments/미분류';
+function merge(dir: string, out: string) {
+  console.log(`=== merging ${dir} ===`);
+
+  const path = dir;
 
   const files = fs.readdirSync(path);
   const gitignoreIdx = files.findIndex(f => f === '.gitignore');
@@ -13,7 +15,7 @@ import { Comment, Post } from './types';
 
   if (files.length === 0) {
     console.log('데이터가 없습니다!');
-    process.exit();
+    return;
   }
 
   console.log('게시글: ', files.length);
@@ -35,9 +37,14 @@ import { Comment, Post } from './types';
     '~',
     dayjs(comments[0].postDate).format('YYYY-MM-DD HH:mm:ss')
   );
-  fs.writeFileSync('./comments/comments.json', JSON.stringify(comments, null, 2));
+  fs.writeFileSync(out, JSON.stringify(comments, null, 2));
 
   for (const file of files) {
     fs.unlinkSync(`${path}/${file}`);
   }
+}
+
+(() => {
+  merge('./comments/미분류', './comments/fmkorea.json');
+  merge('./comments/dcinside', './comments/dcinside.json');
 })();
