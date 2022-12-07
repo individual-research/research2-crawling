@@ -47,14 +47,14 @@ export const crawlBestLinks = async (start: number, end: number) => {
         });
     });
 
-    await sleep(500);
+    await sleep(250);
   }
 
   return links;
 };
 
 export const crawlComments = async (posts: Post[], savePath: string) => {
-  let comments: Comment[] = [];
+  // let comments: Comment[] = [];
 
   for (const [idx, post] of Object.entries(posts)) {
     console.log(`${idx}/${posts.length}`);
@@ -74,7 +74,7 @@ export const crawlComments = async (posts: Post[], savePath: string) => {
         try {
           const curComments = await getComments(regex[1], regex[2], { postTitle, postDate, postLink: `https://www.fmkorea.com${post.link}` });
           fs.writeFileSync(`${savePath}/${regex[2]}.json`, JSON.stringify(curComments, null, 2));
-          comments = comments.concat(curComments);
+          // comments = comments.concat(curComments);
         } catch (e) {
           reportError(e, `${regex[2]}번 게시글의 댓글을 불러오던 중 오류가 발생했습니다. (${post.link})`);
         }
@@ -83,8 +83,8 @@ export const crawlComments = async (posts: Post[], savePath: string) => {
       reportError(e, `"${post.title}" 게시글의 크롤링 도중 오류가 발생했습니다. (${post.link})`);
     }
 
-    await sleep(500);
+    await sleep(250);
   }
 
-  return comments;
+  // return comments;
 };

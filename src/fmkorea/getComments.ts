@@ -94,7 +94,7 @@ export async function getComments(board: string, post: string, postMeta: { postD
       next = false;
     } else {
       page++;
-      await sleep(250);
+      await sleep(100);
     }
   }
 
