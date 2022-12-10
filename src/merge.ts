@@ -37,14 +37,17 @@ function merge(dir: string, out: string) {
     '~',
     dayjs(comments[0].postDate).format('YYYY-MM-DD HH:mm:ss')
   );
-  fs.writeFileSync(out, JSON.stringify(comments, null, 2));
 
-  for (const file of files) {
-    fs.unlinkSync(`${path}/${file}`);
-  }
+  const length = comments.length / 2;
+  fs.writeFileSync(out + '1', JSON.stringify(comments.slice(undefined, length)));
+  fs.writeFileSync(out + '2', JSON.stringify(comments.slice(length)));
+
+  // for (const file of files) {
+  //   fs.unlinkSync(`${path}/${file}`);
+  // }
 }
 
 (() => {
-  merge('./comments/미분류', './comments/fmkorea.json');
-  merge('./comments/dcinside', './comments/dcinside.json');
+  merge('./comments/fmkorea', './comments/fmkorea.json');
+  // merge('./comments/dcinside', './comments/dcinside.json');
 })();

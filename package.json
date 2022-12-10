@@ -6,6 +6,9 @@
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register ./src/index.ts",
     "merge": "ts-node -r tsconfig-paths/register ./src/merge.ts",
+    "analysis": "ts-node -r tsconfig-paths/register ./src/analysis.ts",
+    "split": "ts-node -r tsconfig-paths/register ./src/split.ts",
+    "remained": "ts-node -r tsconfig-paths/register ./src/remained.ts",
     "lint": "eslint --ext .js,.ts .",
     "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
   },

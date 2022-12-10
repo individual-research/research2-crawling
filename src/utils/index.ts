@@ -11,7 +11,6 @@ export const reportError = (e: any, msg: string) => {
     console.error('status: ', e.status);
     console.error('message: ', e.message);
     console.error('data: ', e.response?.data);
-    fs.writeFileSync('temp', e.response?.data);
   } else {
     console.error(e);
   }
